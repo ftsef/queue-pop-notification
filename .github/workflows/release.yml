@@ -1,0 +1,102 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on version tags like v1.0.0, v2.1.3, etc.
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.24.5'
+        
+    - name: Get dependencies
+      run: |
+        cd cmd/qpn
+        go mod tidy
+        
+    - name: Build for Windows
+      run: |
+        cd cmd/qpn
+        go build -o qpn.exe
+        
+    - name: Get contributors since last release
+      id: contributors
+      run: |
+        # Get the previous tag
+        $previousTag = git describe --tags --abbrev=0 HEAD^ 2>$null
+        if ($previousTag) {
+          $contributors = git log --pretty=format:"%an" $previousTag..HEAD | Sort-Object | Get-Unique
+        } else {
+          $contributors = git log --pretty=format:"%an" | Sort-Object | Get-Unique
+        }
+        $contributorList = ($contributors | ForEach-Object { "- @$_" }) -join "`n"
+        echo "contributors<<EOF" >> $env:GITHUB_OUTPUT
+        echo $contributorList >> $env:GITHUB_OUTPUT
+        echo "EOF" >> $env:GITHUB_OUTPUT
+
+    - name: Create Release Archive
+      run: |
+        mkdir release
+        copy cmd\qpn\qpn.exe release\
+        copy cmd\qpn\config.yaml release\config.yaml.dist
+        copy cmd\qpn\create_autostart_windows_task.bat release\
+        copy cmd\qpn\README.md release\
+        
+    - name: Archive Release
+      run: |
+        Compress-Archive -Path release\* -DestinationPath queue-pop-notification-${{ github.ref_name }}.zip
+        
+    - name: Create Release
+      uses: actions/create-release@v1
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: Queue Pop Notification ${{ github.ref_name }}
+        body: |
+          ## Queue Pop Notification ${{ github.ref_name }}
+          
+          ### What's included:
+          - `qpn.exe` - The main executable
+          - `config.yaml.dist` - Configuration file template
+          - `create_autostart_windows_task.bat` - Script to set up Windows autostart
+          - `README.md` - Documentation
+          
+          ### Installation:
+          1. Download and extract the zip file
+          2. Rename `config.yaml.dist` to `config.yaml` and edit it with your Discord webhook URL and WoW path
+          3. Run `create_autostart_windows_task.bat` as Administrator to set up autostart
+          
+          ### Requirements:
+          - World of Warcraft with QueueNotify addon installed
+          
+          ### Contributors:
+          ${{ steps.contributors.outputs.contributors }}
+          
+          Thank you to all contributors who made this release possible! 🎉
+
+
+        draft: false
+        prerelease: false
+        
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./queue-pop-notification-${{ github.ref_name }}.zip
+        asset_name: queue-pop-notification-${{ github.ref_name }}.zip
+        asset_content_type: application/zip
