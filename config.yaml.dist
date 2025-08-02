@@ -1,0 +1,13 @@
+webhook:
+  url: "https://discord.com/api/webhooks/.../..."
+  body: |
+    {
+      "content": "<@user-id> BG-Blitz match found!!",
+      "allowed_mentions": {
+        "users": [
+          "user-id"
+        ]
+      }
+    }
+wow:
+  base_path: "E:\\games\\World of Warcraft"

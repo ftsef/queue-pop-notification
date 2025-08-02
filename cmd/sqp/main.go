@@ -7,14 +7,40 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"solo-queue-pop/internal/config"
 	"solo-queue-pop/internal/discord"
 	"solo-queue-pop/internal/watcher"
 	"syscall"
 
-	"github.com/joho/godotenv"
+	"github.com/spf13/cobra"
+)
+
+var (
+	cfgFile string
+	rootCmd = &cobra.Command{
+		Use:   "sqp",
+		Short: "sqp - Solo Queue Pop - Notifies when a solo queue pop is detected",
+		Long:  `Sends a Discord notification when a solo queue pop is detected in World of Warcraft.`,
+		Run: func(cmd *cobra.Command, args []string) {
+			// Do Stuff Here
+			run()
+		},
+	}
 )
 
 func main() {
+
+	cobra.MousetrapHelpText = ""
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "config.yaml", "Path to the configuration file")
+
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func run() {
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -27,34 +53,24 @@ func main() {
 		cancel()
 	}()
 
-	err := godotenv.Load()
+	cfg, err := config.LoadConfig(cfgFile)
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatalf("Error loading config.yaml: %v", err)
 	}
 
-	webhookURL := os.Getenv("WEBHOOK_URL")
-	webhookBody := os.Getenv("WEBHOOK_BODY")
-	wowBasePath := os.Getenv("WOW_BASE_PATH")
-
 	fmt.Println("Solo-Queue-Pop Notification Service started")
-	fmt.Println("Environment variables loaded:")
-	fmt.Println("WOW_BASE_PATH:", wowBasePath)
+	fmt.Println("Configuration loaded from config.yaml")
+	fmt.Println("WOW_BASE_PATH:", cfg.Wow.BasePath)
 
-	screenshotDir := filepath.Join(wowBasePath, "_retail_", "Screenshots")
+	screenshotDir := filepath.Join(cfg.Wow.BasePath, "_retail_", "Screenshots")
 	fmt.Printf("Watching directory: %s\n", screenshotDir)
 	fmt.Println("Press Ctrl+C to stop...")
 
 	if _, err := os.Stat(screenshotDir); os.IsNotExist(err) {
 		log.Fatalf("Screenshot directory does not exist: %s", screenshotDir)
 	}
-	if webhookURL == "" {
-		log.Fatal("WEBHOOK_URL environment variable is not set")
-	}
-	if webhookBody == "" {
-		log.Println("WEBHOOK_BODY environment variable is not set")
-	}
 
-	webhook := discord.NewWebhook(webhookURL, webhookBody)
+	webhook := discord.NewWebhook(cfg.Discord.Webhook.URL, cfg.Discord.Webhook.Body)
 	sendWebhookCallback := func(filename string) {
 		webhook.SendNotification() // or specify option for dynamic body
 	}
