@@ -1,4 +1,4 @@
-# PvP Queue Pop Notifier
+# PvP Queue Pop Notification
 
 Tired of being tethered to your desk with a wired headset while waiting for a World of Warcraft match? This lightweight application sends a Discord notification the moment your queue pops, so you'll never miss a match again!
 
