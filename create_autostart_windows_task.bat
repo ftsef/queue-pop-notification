@@ -7,9 +7,9 @@ REM 1. This script assumes your project's executable will be located at 'd:\proj
 REM    You may need to build it first, for example by running 'go build' from the 'd:\projects\solo-queue-pop\solo-queue-pop' directory.
 REM 2. Please run this script as an Administrator to ensure it has permission to create scheduled tasks.
 
-set "EXECUTABLE_PATH=%~dp0solo-queue-pop.exe"
+set "EXECUTABLE_PATH=%~dp0qpn.exe"
 set "WORKING_DIR=%~dp0"
-set "TASK_NAME=SoloQueuePopStartup"
+set "TASK_NAME=WoWQueuePopNotification"
 
 echo Creating Windows Scheduled Task to run Solo Queue Pop on logon...
 echo.
@@ -28,10 +28,9 @@ if not exist "%EXECUTABLE_PATH%" (
 
 REM Use schtasks to create the task.
 REM /sc ONLOGON - Runs when the user logs in.
-REM /rl HIGHEST - Runs with the highest administrative privileges.
-REM /tr - Specifies the task to run. We use cmd /c to change the directory first.
+REM /tr - Specifies the task to run. We use 'start' to ensure the console window is visible.
 REM /f  - Overwrites the task if it already exists.
-schtasks /create /tn "%TASK_NAME%" /tr "cmd /c \"cd /d \"%WORKING_DIR%\" && \"%EXECUTABLE_PATH%\"\"" /sc ONLOGON /rl HIGHEST /f
+schtasks /create /sc ONLOGON /tn "%TASK_NAME%" /tr "cmd /c start \"%EXECUTABLE_PATH%"  /f
 
 if %errorlevel% equ 0 (
     echo.

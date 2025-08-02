@@ -15,7 +15,7 @@ This tool relies on the **QueueNotify** World of Warcraft addon. This addon auto
 
 ## Configuration
 
-1.  Create a `config.yaml` file in the same directory as the `solo-queue-pop.exe` executable.
+1.  Create a `config.yaml` file in the same directory as the `qpn.exe` executable.
 2.  Copy the example below and modify it with your own settings.
 
 -   **`url`**: Your Discord webhook URL. For more information, see the [Discord Webhook API documentation](https://discord.com/developers/docs/resources/webhook).
@@ -42,24 +42,25 @@ wow:
 ## Usage
 
 ### Build the Application
-Navigate to the `solo-queue-pop` subdirectory and run the build command:
+Navigate to the `cmd\qpn` subdirectory and run the build command:
 ```sh
-cd solo-queue-pop
-go build
+cd cmd\qpn
+go build .
 ```
-This will create the `solo-queue-pop.exe` executable.
+This will create the `qpn.exe` executable.
 
 ### Run Manually
 To run the application directly, execute the compiled file from your terminal:
 ```sh
-./solo-queue-pop.exe
+./qpn.exe
 ```
+or just click the executable.
 
 ### Run Automatically on Startup (Windows)
 A batch script is provided to create a Windows Scheduled Task that runs the application automatically when you log in.
 
-1.  Place the `create_task.bat` script in the same directory as `solo-queue-pop.exe`.
-2.  Right-click `create_task.bat` and select **"Run as administrator"**.
+1.  Place the `create_autostart_windows_task.bat` script in the same directory as `qpn.exe`.
+2.  Right-click `create_autostart_windows_task.bat` and select **"Run as administrator"**.
 
 The script will handle the rest.
 
