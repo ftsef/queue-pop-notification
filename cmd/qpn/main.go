@@ -18,9 +18,9 @@ import (
 var (
 	cfgFile string
 	rootCmd = &cobra.Command{
-		Use:   "sqp",
-		Short: "sqp - Solo Queue Pop - Notifies when a solo queue pop is detected",
-		Long:  `Sends a Discord notification when a solo queue pop is detected in World of Warcraft.`,
+		Use:   "qpn",
+		Short: "qpn - Queue Pop Notifier - Notifies when a queue pop is detected",
+		Long:  `Sends a Discord notification when a queue pop is detected in World of Warcraft.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// Do Stuff Here
 			run()

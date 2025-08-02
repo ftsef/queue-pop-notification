@@ -1,6 +1,11 @@
-# Solo Queue Pop Notifier
+# PvP Queue Pop Notifier
 
 Tired of being tethered to your desk with a wired headset while waiting for a World of Warcraft match? This lightweight application sends a Discord notification the moment your queue pops, so you'll never miss a match again!
+
+As of right now due to the restrictions from the QueueNotify addon you only get notifications for Solo-Shuffle and BG Blitz.
+---
+I'll probably create a new addon to also receive notifications for 2v2 and 3v3 + some extras like Rating etc.
+
 
 ## Prerequisites
 
