@@ -58,6 +58,10 @@ func run() {
 		log.Fatalf("Error loading config.yaml: %v", err)
 	}
 
+	if err := cfg.Validate(); err != nil {
+		log.Fatalln("Configuration validation failed", err)
+	}
+
 	fmt.Println("Solo-Queue-Pop Notification Service started")
 	fmt.Println("Configuration loaded from config.yaml")
 	fmt.Println("WOW_BASE_PATH:", cfg.Wow.BasePath)
