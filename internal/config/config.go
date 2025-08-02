@@ -11,7 +11,7 @@ import (
 type Config struct {
 	Discord struct {
 		Webhook struct {
-			URL  string `yaml:"webhook_url" required:"true"`
+			URL  string `yaml:"url" required:"true"`
 			Body string `yaml:"body" required:"true"`
 		} `yaml:"webhook"`
 	} `yaml:"discord"`
