@@ -2,6 +2,7 @@ import {useState} from 'react';
 import logo from './assets/images/logo-universal.png';
 import './App.css';
 import {Greet} from "../wailsjs/go/main/App";
+import EventLog from "./components/event-log";
 
 function App() {
     const [resultText, setResultText] = useState("Please enter your name below 👇");
@@ -14,13 +15,14 @@ function App() {
     }
 
     return (
-        <div id="App">
-            <img src={logo} id="logo" alt="logo"/>
-            <div id="result" className="result">{resultText}</div>
-            <div id="input" className="input-box">
-                <input id="name" className="input" onChange={updateName} autoComplete="off" name="input" type="text"/>
-                <button className="btn" onClick={greet}>Greet</button>
-            </div>
+        <div id="App" className="h-screen flex flex-col">
+                <h1 className="ml-4 text-2xl font-bold text-gray-800">
+                    Queue Pop Notification
+                </h1>
+            
+            <main className="flex-1 p-4 overflow-hidden">
+                <EventLog />
+            </main>
         </div>
     )
 }

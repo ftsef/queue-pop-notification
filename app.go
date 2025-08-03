@@ -34,10 +34,13 @@ func (a *App) startup(ctx context.Context) {
 
 	callbacks := wow.EventCallbacks{
 		OnPvPQueuePop: func(mode wow.PvPMode, details map[string]string) {
+			log.Info().Msgf("x")
+
 			runtime.EventsEmit(a.ctx, "OnPvPQueuePop", map[string]interface{}{
 				"mode":      mode,
 				"details":   details,
 				"timestamp": time.Now().Format("15:04:05"),
+				"queueType": string(mode),
 			})
 		},
 	}

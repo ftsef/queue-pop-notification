@@ -1,7 +1,6 @@
 package webhook
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -20,7 +19,6 @@ func NewDiscordWebhook(url string, defaultBody string) *DiscordWebhook {
 func (w *DiscordWebhook) SendNotification(eventType string, details map[string]string) error {
 	// Here you would implement the logic to send a notification to the Discord webhook.
 	// This is a placeholder implementation.
-	fmt.Printf("Sending notification")
 
 	url := w.url
 	newBody := w.defaultBody
@@ -29,8 +27,6 @@ func (w *DiscordWebhook) SendNotification(eventType string, details map[string]s
 	if err != nil {
 		log.Error().Err(err).Msg("Error sending notification")
 		return err
-	} else {
-		log.Info().Msg("Notification sent successfully")
 	}
 	return nil
 }
