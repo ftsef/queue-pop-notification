@@ -3,11 +3,11 @@ package watcher
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/rs/zerolog/log"
 )
 
 type Watcher struct {
@@ -38,7 +38,7 @@ func (w *Watcher) Start(ctx context.Context) error {
 		return err
 	}
 
-	fmt.Printf("Started watching for .tga files in: %s\n", w.dir)
+	log.Info().Msgf("Started watching for .tga files in: %s", w.dir)
 
 	// Start listening for events
 	for {
@@ -52,19 +52,23 @@ func (w *Watcher) Start(ctx context.Context) error {
 
 			// Check if it's a .tga file and a create/write event
 			if strings.HasSuffix(strings.ToLower(event.Name), ".tga") {
-				if event.Op&fsnotify.Create == fsnotify.Create {
-					fmt.Printf("New .tga file detected: %s\n", event.Name)
+				if event.Op == fsnotify.Create {
+					log.Info().Msgf("New .tga file detected: %s", event.Name)
 					w.callback(event.Name)
-				} else if event.Op&fsnotify.Write == fsnotify.Write {
-					fmt.Printf("Modified .tga file: %s\n", event.Name)
+
+					err := os.Remove(event.Name)
+					if err != nil {
+						log.Warn().Err(err).Msgf("Failed to delete file: %s", event.Name)
+					}
 				}
+
 			}
 
 		case err, ok := <-watcher.Errors:
 			if !ok {
 				return err
 			}
-			log.Printf("Watcher error: %v", err)
+			log.Error().Err(err).Msg("Watcher error")
 		}
 	}
 }

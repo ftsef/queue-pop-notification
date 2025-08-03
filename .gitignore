@@ -1,4 +1,6 @@
-.env
-config.yaml
+build/bin
+node_modules
+frontend/dist
 *.exe
-.vscode
+config.yaml
+.vscode/

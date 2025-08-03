@@ -2,9 +2,10 @@ package discord
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 )
 
 type Webhook struct {
@@ -43,10 +44,10 @@ func (w *Webhook) SendNotification(options ...WebhookSendOption) error {
 
 	_, err := http.Post(url, "application/json", strings.NewReader(newBody))
 	if err != nil {
-		log.Printf("Error sending notification: %v", err)
+		log.Error().Err(err).Msg("Error sending notification")
 		return err
 	} else {
-		log.Println("Notification sent successfully")
+		log.Info().Msg("Notification sent successfully")
 	}
 	return nil
 }
