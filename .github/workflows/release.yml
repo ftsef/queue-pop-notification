@@ -54,8 +54,8 @@ jobs:
       run: |
         mkdir release-${{ matrix.os_name }}
         cp cmd/qpn/qpn-${{ matrix.os_name }}${{ matrix.extension }} release-${{ matrix.os_name }}/
-        cp cmd/qpn/config.yaml release-${{ matrix.os_name }}/config.yaml.dist
-        cp cmd/qpn/README.md release-${{ matrix.os_name }}/
+        cp config.yaml.dist release-${{ matrix.os_name }}/
+        cp README.md release-${{ matrix.os_name }}/
         
     - name: Archive Release
       run: |
