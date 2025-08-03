@@ -80,7 +80,7 @@ func Run(ctx context.Context, cfg config.Config, otherCallbacks *wow.EventCallba
 					continue
 				}
 
-				log.Info().Msgf("Queue pop detected, Mode %s", wh)
+				log.Info().Msgf("Queue pop detected, Mode %s, %s", mode, details)
 				if err := wh.SendNotification(string(mode), details); err != nil {
 					log.Error().Err(err).Msgf("Failed to send notification via %s", whName)
 				} else {
