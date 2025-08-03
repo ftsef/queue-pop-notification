@@ -15,8 +15,8 @@ type WebhookSender struct {
 	URL         string            `yaml:"url" required:"true"`
 	Body        string            `yaml:"body" required:"true"`
 	Header      map[string]string `yaml:"header,omitempty"`
-	RequestType string            `yaml:"http_type,omitempty"`
-	Type        string            `yaml:"type" required:"true"` // e.g., "discord", "ntfy", etc.
+	RequestType string            `yaml:"request_type" required:"true"` // e.g., "POST", "GET"
+	Type        string            `yaml:"type" required:"true"`         // e.g., "discord", "ntfy", etc.
 }
 
 // Config represents the structure of the config.yaml file.
@@ -40,7 +40,7 @@ func LoadConfig(path string) (Config, error) {
 		return config, err
 	}
 
-	err = yaml.Unmarshal(file, config)
+	err = yaml.Unmarshal(file, &config)
 	if err != nil {
 		return config, err
 	}
