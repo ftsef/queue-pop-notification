@@ -100,7 +100,7 @@ jobs:
       uses: actions/download-artifact@v4
       
     - name: Create Release
-      uses: actions/create-release@v4
+      uses: actions/create-release@v1
       id: create_release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
