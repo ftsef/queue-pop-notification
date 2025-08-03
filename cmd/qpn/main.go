@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"queue-pop-notification/internal/config"
 	"queue-pop-notification/internal/service"
 
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +19,12 @@ var (
 		Long:  `Sends a Discord notification when a queue pop is detected in World of Warcraft.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// Do Stuff Here
-			service.Run(context.Background(), cfgFile)
+			cfg, err := config.Load()
+			if err != nil {
+				log.Fatal().Err(err).Msg("Error loading config.yaml")
+			}
+
+			service.Run(context.Background(), cfg, nil)
 		},
 	}
 )

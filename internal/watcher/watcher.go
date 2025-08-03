@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"queue-pop-notification/internal/wow"
 	"strings"
 
 	"github.com/fsnotify/fsnotify"
@@ -12,11 +13,11 @@ import (
 
 type Watcher struct {
 	dir      string
-	callback func(filename string)
+	callback wow.EventCallbacks
 }
 
-func NewWatcher(dir string, callback func(filename string)) *Watcher {
-	return &Watcher{dir: dir, callback: callback}
+func NewWatcher(dir string, callbacks wow.EventCallbacks) *Watcher {
+	return &Watcher{dir: dir, callback: callbacks}
 }
 
 func (w *Watcher) Start(ctx context.Context) error {
@@ -54,7 +55,12 @@ func (w *Watcher) Start(ctx context.Context) error {
 			if strings.HasSuffix(strings.ToLower(event.Name), ".tga") {
 				if event.Op == fsnotify.Create {
 					log.Info().Msgf("New .tga file detected: %s", event.Name)
-					w.callback(event.Name)
+
+					// todo - pvp modes
+
+					if w.callback.OnPvPQueuePop != nil {
+						w.callback.OnPvPQueuePop(wow.PvP_BG_Blitz, map[string]string{})
+					}
 
 					err := os.Remove(event.Name)
 					if err != nil {
