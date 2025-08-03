@@ -136,7 +136,7 @@ jobs:
         prerelease: false
         
     - name: Upload Windows Release Asset
-      uses: actions/upload-release-asset@v4
+      uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -146,7 +146,7 @@ jobs:
         asset_content_type: application/zip
         
     - name: Upload macOS Intel Release Asset
-      uses: actions/upload-release-asset@v4
+      uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -156,7 +156,7 @@ jobs:
         asset_content_type: application/gzip
         
     - name: Upload macOS ARM64 Release Asset
-      uses: actions/upload-release-asset@v4
+      uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -166,7 +166,7 @@ jobs:
         asset_content_type: application/gzip
         
     - name: Upload Linux Release Asset
-      uses: actions/upload-release-asset@v4
+      uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
