@@ -101,37 +101,65 @@ export default function EventLog(): JSX.Element {
   return (
     <div className="flex flex-col h-full">
       
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto border border-gray-300 rounded-lg bg-white shadow-inner"
-        style={{ maxHeight: 'calc(100vh - 200px)' }}
-      >
-        {events.length === 0 ? (
-          <div className="p-4 text-center text-gray-500">
-            Waiting for events...
-          </div>
-        ) : (
-          <div className="p-2 space-y-1">
-            {events.map((event) => (
-              <div
-                key={event.id}
-                className={`p-2 rounded border-l-4 ${getEventColor(event.level)}`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs text-gray-500 w-16 flex-shrink-0">
-                    {event.timestamp}
-                  </span>
-                  <span className="text-xs flex-shrink-0">
-                    {getEventIcon(event.type, event.level)}
-                  </span>
-                  <span className="text-sm font-medium flex-1 min-w-0 truncate">
-                    {event.message}
-                  </span>
+      {/* Scrollable Content Area with hidden scrollbar and shadows */}
+      <div className="flex-1 relative shadow-inner overflow-hidden">
+        {/* Top shadow gradient */}
+        <div className="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-gray-200 to-transparent z-10 pointer-events-none opacity-0 transition-opacity duration-300" 
+             id="top-shadow"></div>
+        
+        {/* Bottom shadow gradient */}
+        <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-gray-200 to-transparent z-10 pointer-events-none opacity-100 transition-opacity duration-300" 
+             id="bottom-shadow"></div>
+        
+        <div 
+          ref={scrollRef} 
+          className="h-full overflow-y-scroll scrollbar-hide"
+          style={{
+            scrollbarWidth: 'none', /* Firefox */
+            msOverflowStyle: 'none' /* Internet Explorer 10+ */
+          }}
+          onScroll={(e) => {
+            const element = e.target as HTMLElement;
+            const topShadow = document.getElementById('top-shadow');
+            const bottomShadow = document.getElementById('bottom-shadow');
+            
+            if (topShadow && bottomShadow) {
+              // Show top shadow when scrolled down
+              topShadow.style.opacity = element.scrollTop > 0 ? '1' : '0';
+              
+              // Show bottom shadow when not at bottom
+              const isAtBottom = element.scrollTop + element.clientHeight >= element.scrollHeight - 1;
+              bottomShadow.style.opacity = isAtBottom ? '0' : '1';
+            }
+          }}
+        >
+          {events.length === 0 ? (
+            <div className="p-4 text-center text-gray-500">
+              Waiting for events...
+            </div>
+          ) : (
+            <div className="px-2 py-2 space-y-1">
+              {events.map((event) => (
+                <div
+                  key={event.id}
+                  className={`p-3 mx-2 rounded ${getEventColor(event.level)}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs text-gray-500 w-16 flex-shrink-0">
+                      {event.timestamp}
+                    </span>
+                    <span className="text-xs flex-shrink-0">
+                      {getEventIcon(event.type, event.level)}
+                    </span>
+                    <span className="text-sm font-medium flex-1 min-w-0 truncate">
+                      {event.message}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
