@@ -24,10 +24,16 @@ func GetCurrentTime() string {
 	return time.Now().Format("2006-01-02 15:04:05")
 }
 
-func Run(ctx context.Context, cfg config.Config, otherCallbacks *wow.EventCallbacks) {
+func Run(ctx context.Context, configPath string, otherCallbacks *wow.EventCallbacks) {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+
+	cfgManager := config.NewConfigManager(configPath)
+	cfg, err := cfgManager.Load()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error loading config.yaml")
+	}
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()

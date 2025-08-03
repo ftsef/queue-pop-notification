@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"queue-pop-notification/internal/config"
 	"queue-pop-notification/internal/service"
 	"queue-pop-notification/internal/wow"
 	"time"
@@ -27,11 +26,6 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 
-	cfg, err := config.Load()
-	if err != nil {
-		log.Fatal().Err(err).Msg("Error loading config.yaml")
-	}
-
 	callbacks := wow.EventCallbacks{
 		OnPvPQueuePop: func(mode wow.PvPMode, details map[string]string) {
 			log.Info().Msgf("x")
@@ -45,11 +39,7 @@ func (a *App) startup(ctx context.Context) {
 		},
 	}
 
-	// Start the service with event callbacks
-	go func() {
-
-		service.Run(ctx, cfg, &callbacks)
-	}()
+	service.Run(ctx, "", &callbacks)
 }
 
 // Greet returns a greeting for the given name
