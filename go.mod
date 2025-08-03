@@ -1,4 +1,4 @@
-module solo-queue-pop
+module queue-pop-notification
 
 go 1.24.5
 

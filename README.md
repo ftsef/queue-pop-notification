@@ -3,9 +3,13 @@
 Tired of being tethered to your desk with a wired headset while waiting for a World of Warcraft match? This lightweight application sends a Discord notification the moment your queue pops, so you'll never miss a match again!
 
 As of right now due to the restrictions from the QueueNotify addon you only get notifications for Solo-Shuffle and BG Blitz.
----
-I'll probably create a new addon to also receive notifications for 2v2 and 3v3 + some extras like Rating etc.
 
+## Features
+
+- [x] notifications for Solo-Shuffle and BG Blitz
+- [ ] companion addon which provides further ingame information like rating, 2v2 and 3v3 notifications
+- [ ] 2v2 and 3v3 notifications
+- [ ] rating information
 
 ## Prerequisites
 
@@ -49,20 +53,21 @@ go build .
 ```
 This will create the `qpn.exe` executable.
 
-### Run Manually
-To run the application directly, execute the compiled file from your terminal:
-```sh
-./qpn.exe
+### Start the app
+You have two options. Click on the executable which assumes you have a `config.yaml` in the same directory.
+
+Alternatively run start the app manually by executing the compiled file from your terminal:
 ```
-or just click the executable.
+# windows
+qpn.exe 
 
-### Run Automatically on Startup (Windows)
-A batch script is provided to create a Windows Scheduled Task that runs the application automatically when you log in.
+# macos
+./qpn-macos-intel 
+./qpn-macos-arm64
 
-1.  Place the `create_autostart_windows_task.bat` script in the same directory as `qpn.exe`.
-2.  Right-click `create_autostart_windows_task.bat` and select **"Run as administrator"**.
-
-The script will handle the rest.
+# linux
+./qpn-linux-amd64
+```
 
 ## Alternatives
 * [Queue Notify Client](https://github.com/rudikiaz/queue-notify-client)
