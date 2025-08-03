@@ -7,9 +7,9 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"solo-queue-pop/internal/config"
-	"solo-queue-pop/internal/discord"
-	"solo-queue-pop/internal/watcher"
+	"queue-pop-notification/internal/config"
+	"queue-pop-notification/internal/discord"
+	"queue-pop-notification/internal/watcher"
 	"syscall"
 
 	"github.com/spf13/cobra"

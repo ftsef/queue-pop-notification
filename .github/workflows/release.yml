@@ -9,7 +9,26 @@ on:
 
 jobs:
   release:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: windows
+            goarch: amd64
+            extension: .exe
+            os_name: windows-amd64
+          - goos: darwin
+            goarch: amd64
+            extension: ""
+            os_name: macos-intel
+          - goos: darwin
+            goarch: arm64
+            extension: ""
+            os_name: macos-arm64
+          - goos: linux
+            goarch: amd64
+            extension: ""
+            os_name: linux-amd64
     
     steps:
     - name: Checkout code
@@ -25,10 +44,13 @@ jobs:
         cd cmd/qpn
         go mod tidy
         
-    - name: Build for Windows
+    - name: Build for ${{ matrix.os_name }}
+      env:
+        GOOS: ${{ matrix.goos }}
+        GOARCH: ${{ matrix.goarch }}
       run: |
         cd cmd/qpn
-        go build -o qpn.exe
+        go build -o qpn-${{ matrix.os_name }}${{ matrix.extension }}
         
     - name: Get contributors since last release
       id: contributors
@@ -47,16 +69,53 @@ jobs:
 
     - name: Create Release Archive
       run: |
-        mkdir release
-        copy cmd\qpn\qpn.exe release\
-        copy cmd\qpn\config.yaml release\config.yaml.dist
-        copy cmd\qpn\create_autostart_windows_task.bat release\
-        copy cmd\qpn\README.md release\
+        mkdir release-${{ matrix.os_name }}
+        cp cmd/qpn/qpn-${{ matrix.os_name }}${{ matrix.extension }} release-${{ matrix.os_name }}/
+        cp cmd/qpn/config.yaml release-${{ matrix.os_name }}/config.yaml.dist
+        cp cmd/qpn/README.md release-${{ matrix.os_name }}/
         
     - name: Archive Release
       run: |
-        Compress-Archive -Path release\* -DestinationPath queue-pop-notification-${{ github.ref_name }}.zip
+        if [ "${{ matrix.goos }}" = "windows" ]; then
+          cd release-${{ matrix.os_name }} && zip -r ../queue-pop-notification-${{ matrix.os_name }}-${{ github.ref_name }}.zip .
+        else
+          tar -czf queue-pop-notification-${{ matrix.os_name }}-${{ github.ref_name }}.tar.gz -C release-${{ matrix.os_name }} .
+        fi
+    - name: Upload Release Assets
+      uses: actions/upload-artifact@v3
+      with:
+        name: queue-pop-notification-${{ matrix.os_name }}-${{ github.ref_name }}
+        path: |
+          queue-pop-notification-${{ matrix.os_name }}-${{ github.ref_name }}.zip
+          queue-pop-notification-${{ matrix.os_name }}-${{ github.ref_name }}.tar.gz
+
+  create-release:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
         
+    - name: Get contributors since last release
+      id: contributors
+      run: |
+        # Get the previous tag
+        previousTag=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+        if [ -n "$previousTag" ]; then
+          contributors=$(git log --pretty=format:"%an" $previousTag..HEAD | sort | uniq)
+        else
+          contributors=$(git log --pretty=format:"%an" | sort | uniq)
+        fi
+        contributorList=$(echo "$contributors" | sed 's/^/- @/' | tr '\n' '\n')
+        echo "contributors<<EOF" >> $GITHUB_OUTPUT
+        echo "$contributorList" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+      
     - name: Create Release
       uses: actions/create-release@v1
       id: create_release
@@ -68,16 +127,22 @@ jobs:
         body: |
           ## Queue Pop Notification ${{ github.ref_name }}
           
+          ### Downloads available for:
+          - **Windows**: `queue-pop-notification-windows-amd64-${{ github.ref_name }}.zip`
+          - **macOS Intel**: `queue-pop-notification-macos-intel-${{ github.ref_name }}.tar.gz`
+          - **macOS Apple Silicon**: `queue-pop-notification-macos-arm64-${{ github.ref_name }}.tar.gz`
+          - **Linux**: `queue-pop-notification-linux-amd64-${{ github.ref_name }}.tar.gz`
+          
           ### What's included:
-          - `qpn.exe` - The main executable
+          - Main executable (`qpn.exe` for Windows, `qpn-macos-intel`/`qpn-macos-arm64`/`qpn-linux-amd64` for Unix)
           - `config.yaml.dist` - Configuration file template
-          - `create_autostart_windows_task.bat` - Script to set up Windows autostart
           - `README.md` - Documentation
           
           ### Installation:
-          1. Download and extract the zip file
-          2. Rename `config.yaml.dist` to `config.yaml` and edit it with your Discord webhook URL and WoW path
-          3. Run `create_autostart_windows_task.bat` as Administrator to set up autostart
+          1. Download the appropriate file for your operating system
+          2. Extract the archive
+          3. Rename `config.yaml.dist` to `config.yaml` and edit it with your Discord webhook URL and WoW path
+          4. Start the application by running `qpn.exe` (Windows) or `./qpn-macos-intel`/`./qpn-macos-arm64`/`./qpn-linux-amd64` (Unix)
           
           ### Requirements:
           - World of Warcraft with QueueNotify addon installed
@@ -86,17 +151,45 @@ jobs:
           ${{ steps.contributors.outputs.contributors }}
           
           Thank you to all contributors who made this release possible! 🎉
-
-
         draft: false
         prerelease: false
         
-    - name: Upload Release Asset
+    - name: Upload Windows Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./queue-pop-notification-${{ github.ref_name }}.zip
-        asset_name: queue-pop-notification-${{ github.ref_name }}.zip
+        asset_path: ./queue-pop-notification-windows-amd64-${{ github.ref_name }}/queue-pop-notification-windows-amd64-${{ github.ref_name }}.zip
+        asset_name: queue-pop-notification-windows-amd64-${{ github.ref_name }}.zip
         asset_content_type: application/zip
+        
+    - name: Upload macOS Intel Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./queue-pop-notification-macos-intel-${{ github.ref_name }}/queue-pop-notification-macos-intel-${{ github.ref_name }}.tar.gz
+        asset_name: queue-pop-notification-macos-intel-${{ github.ref_name }}.tar.gz
+        asset_content_type: application/gzip
+        
+    - name: Upload macOS ARM64 Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./queue-pop-notification-macos-arm64-${{ github.ref_name }}/queue-pop-notification-macos-arm64-${{ github.ref_name }}.tar.gz
+        asset_name: queue-pop-notification-macos-arm64-${{ github.ref_name }}.tar.gz
+        asset_content_type: application/gzip
+        
+    - name: Upload Linux Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./queue-pop-notification-linux-amd64-${{ github.ref_name }}/queue-pop-notification-linux-amd64-${{ github.ref_name }}.tar.gz
+        asset_name: queue-pop-notification-linux-amd64-${{ github.ref_name }}.tar.gz
+        asset_content_type: application/gzip
