@@ -1,13 +1,26 @@
-webhook:
-  url: "https://discord.com/api/webhooks/.../..."
-  body: |
-    {
-      "content": "<@user-id> BG-Blitz match found!!",
-      "allowed_mentions": {
-        "users": [
-          "user-id"
-        ]
+webhooks:
+  - name: "discord notification"
+    type: "discord"
+    requestType: "POST"
+    headers: ""
+    url: "https://discord.com/api/webhooks/.../..."
+    body: |
+      {
+        "content": "<@user-id> BG-Blitz match found!!",
+        "allowed_mentions": {
+          "users": [
+            "user-id"
+          ]
+        }
       }
-    }
+  - name: "ntfy notification"
+    type: "ntfy"
+    requestType: "POST"
+    headers: ""
+    url: "https://ntfy.sh/..."
+    body: |
+      {
+        "content": "BG-Blitz match found!!",
+      }
 wow:
   base_path: "E:\\games\\World of Warcraft"
